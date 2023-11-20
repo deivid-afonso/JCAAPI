@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace SimpressAPI.Controllers
+namespace JCAApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]

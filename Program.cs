@@ -1,27 +1,20 @@
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SimpressAPI.Data;
-using SimpressAPI.Validators;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using SimpressAPI.Converter;
-using SimpressAPI.Services;
-using SimpressAPI.Dto;
+using JCAApi.Data;
+using JCAApi.Converter;
+using JCAApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 
-//builder.Services.AddValidatorsFromAssemblyContaining<ProdutoValidator>();
-//IServiceCollection serviceCollection = builder.Services.AddTransient<IValidator<ProdutoDto>, ProdutoValidator>();
-
 builder.Services.AddControllers();
-builder.Services.AddSingleton<ProductConverter>();
-builder.Services.AddScoped<ProdutoService>();
+builder.Services.AddSingleton<UserConverter>();
+builder.Services.AddScoped<UserService>();
 
 
 // Configuração do serviço do banco de dados
@@ -29,9 +22,31 @@ builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+// Dentro do método ConfigureServices em Startup.cs
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "your_issuer",
+        ValidAudience = "your_audience",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("test123"))
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("role", "admin"));
+});
 
 
-//using var context = new DbContext(contextOptions);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

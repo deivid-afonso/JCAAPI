@@ -1,4 +1,4 @@
-namespace SimpressAPI
+namespace JCAApi
 {
     public class WeatherForecast
     {

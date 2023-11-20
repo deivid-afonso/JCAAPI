@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace SimpressAPI.Data
+namespace JCAApi.Data
 {
     public class ApiDbContext : DbContext
     {
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
+        public DbSet<Models.UserModel> User { get; set; }
 
-        public DbSet<Models.tblProduto> Produtos { get; set; }
-
-        public DbSet<Models.tblCategoriaProduto> Categorias { get; set; }
+       public DbSet<Models.LoginModel> Login { get; set; }
     }
 }
